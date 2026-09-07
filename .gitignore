@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Backups ###
+project_backup_v1/
+
