@@ -1,0 +1,594 @@
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Catering Services</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ffe29f, #ffa99f);
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4a148c;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px #fff;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #ffffffcc;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    label {
+      font-weight: bold;
+      color: #6a1b9a;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0 20px;
+      border: 2px solid #ba68c8;
+      border-radius: 10px;
+      font-size: 16px;
+      background-color: #f9f9f9;
+      transition: 0.3s ease;
+    }
+
+    select:focus {
+      border-color: #8e24aa;
+      outline: none;
+    }
+
+    .menu-item {
+      background: #fff3e0;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 15px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.3s ease;
+    }
+
+    .menu-item:hover {
+      background-color: #ffe0b2;
+    }
+
+    .menu-item button {
+      background: #ff7043;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .menu-item button:hover {
+      background: #f4511e;
+    }
+
+    .cart {
+      margin-top: 30px;
+      padding: 20px;
+      background: #e1bee7;
+      border-radius: 15px;
+    }
+
+    .cart h2 {
+      color: #4a148c;
+    }
+
+    ul {
+      padding-left: 20px;
+      list-style-type: square;
+    }
+
+    ul li {
+      margin: 5px 0;
+    }
+
+    #total {
+      font-size: 1.3rem;
+      color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍽️ Choose Your Catering Service</h1>
+
+    <label for="location">📍 Select Location:</label>
+    <select id="location" onchange="loadCaterers()">
+      <option value="">-- Select Location --</option>
+      <option value="kukatpally">Kukatpally</option>
+      <option value="kphb">KPHB</option>
+      <option value="miyapur">Miyapur</option>
+      <option value="balanagar">Balanagar</option>
+      <option value="ameerpet">Ameerpet</option>
+      <option value="srnagar">SR Nagar</option>
+      <option value="madhapur">Madhapur</option>
+      <option value="mehdipatnam">Mehdipatnam</option>
+    </select>
+
+    <div id="catererSection" style="display:none;">
+      <label for="caterers">🍴 Select Caterer:</label>
+      <select id="caterers" onchange="showMenu()">
+        <option value="">-- Select Caterer --</option>
+      </select>
+    </div>
+
+    <div id="menuSection"></div>
+
+    <div class="cart">
+      <h2>🛒 Your Cart</h2>
+      <ul id="cartItems"></ul>
+      <p><strong>Total:</strong> ₹<span id="total">0.00</span></p>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      kukatpally: {
+        "Sri Sai Catering": [
+          { name: "Veg Biryani", price: 120 },
+          { name: "Paneer Butter Masala", price: 150 }
+        ],
+        "Spicy Kitchen": [
+          { name: "Chicken 65", price: 180 },
+          { name: "Fried Rice", price: 100 }
+        ]
+      },
+      kphb: {
+        "Delight Foods": [
+          { name: "Gulab Jamun", price: 50 },
+          { name: "Chole Bhature", price: 130 }
+        ]
+      },
+      miyapur: {
+        "Urban Tadka": [
+          { name: "Pav Bhaji", price: 110 },
+          { name: "Butter Naan", price: 40 }
+        ]
+      },
+      balanagar: {
+        "Ruchi Caterers": [
+          { name: "Mutton Biryani", price: 250 },
+          { name: "Veg Pulao", price: 100 }
+        ]
+      },
+      ameerpet: {
+        "Classic Caterers": [
+          { name: "Samosa", price: 20 },
+          { name: "Manchurian", price: 90 }
+        ]
+      },
+      srnagar: {
+        "City Spices": [
+          { name: "Tandoori Chicken", price: 200 },
+          { name: "Mixed Veg Curry", price: 120 }
+        ]
+      },
+      madhapur: {
+        "Flavors of India": [
+          { name: "Chicken Curry", price: 190 },
+          { name: "Jeera Rice", price: 80 }
+        ]
+      },
+      mehdipatnam: {
+        "Hyderabadi Delights": [
+          { name: "Double Ka Meetha", price: 70 },
+          { name: "Hyderabadi Biryani", price: 230 }
+        ]
+      }
+    };
+
+    let cart = [];
+
+    function loadCaterers() {
+      const location = document.getElementById("location").value;
+      const catererDropdown = document.getElementById("caterers");
+      const catererSection = document.getElementById("catererSection");
+      catererDropdown.innerHTML = '<option value="">-- Select Caterer --</option>';
+
+      if (location && data[location]) {
+        Object.keys(data[location]).forEach(caterer => {
+          const option = document.createElement("option");
+          option.value = caterer;
+          option.textContent = caterer;
+          catererDropdown.appendChild(option);
+        });
+        catererSection.style.display = "block";
+      } else {
+        catererSection.style.display = "none";
+        document.getElementById("menuSection").innerHTML = "";
+      }
+    }
+
+    function showMenu() {
+      const location = document.getElementById("location").value;
+      const caterer = document.getElementById("caterers").value;
+      const menuSection = document.getElementById("menuSection");
+
+      if (location && caterer && data[location][caterer]) {
+        let html = `<h3 style="color:#8e24aa;">${caterer}'s Menu:</h3>`;
+        data[location][caterer].forEach(item => {
+          html += `
+            <div class="menu-item">
+              <span>${item.name} - ₹${item.price}</span>
+              <button onclick="addToCart('${item.name}', ${item.price})">Add to Cart</button>
+            </div>
+          `;
+        });
+        menuSection.innerHTML = html;
+      } else {
+        menuSection.innerHTML = "";
+      }
+    }
+
+    function addToCart(name, price) {
+      cart.push({ name, price });
+      updateCart();
+    }
+
+    function updateCart() {
+      const cartItems = document.getElementById("cartItems");
+      const totalDisplay = document.getElementById("total");
+      cartItems.innerHTML = "";
+      let total = 0;
+
+      cart.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name} - ₹${item.price}`;
+        cartItems.appendChild(li);
+        total += item.price;
+      });
+
+      totalDisplay.textContent = total.toFixed(2);
+    }
+  </script>
+</body>
+</html>
+
+!-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Catering Services</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ffe29f, #ffa99f);
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4a148c;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px #fff;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #ffffffcc;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    label {
+      font-weight: bold;
+      color: #6a1b9a;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0 20px;
+      border: 2px solid #ba68c8;
+      border-radius: 10px;
+      font-size: 16px;
+      background-color: #f9f9f9;
+      transition: 0.3s ease;
+    }
+
+    select:focus {
+      border-color: #8e24aa;
+      outline: none;
+    }
+
+    .menu-item {
+      background: #fff3e0;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 15px;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.3s ease;
+    }
+
+    .menu-item:hover {
+      background-color: #ffe0b2;
+    }
+
+    .menu-item button {
+      background: #ff7043;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .menu-item button:hover {
+      background: #f4511e;
+    }
+
+    .cart {
+      margin-top: 30px;
+      padding: 20px;
+      background: #e1bee7;
+      border-radius: 15px;
+    }
+
+    .cart h2 {
+      color: #4a148c;
+    }
+
+    ul {
+      padding-left: 20px;
+      list-style-type: square;
+    }
+
+    ul li {
+      margin: 5px 0;
+    }
+
+    #total {
+      font-size: 1.3rem;
+      color: #d32f2f;
+    }
+
+    .place-order-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 24px;
+      background-color: #8e24aa;
+      color: white;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.3s;
+    }
+
+    .place-order-btn:hover {
+      background-color: #6a1b9a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍽️ Choose Your Catering Service</h1>
+
+    <label for="location">📍 Select Location:</label>
+    <select id="location" onchange="loadCaterers()">
+      <option value="">-- Select Location --</option>
+      <option value="kukatpally">Kukatpally</option>
+      <option value="kphb">KPHB</option>
+      <option value="miyapur">Miyapur</option>
+      <option value="balanagar">Balanagar</option>
+      <option value="ameerpet">Ameerpet</option>
+      <option value="srnagar">SR Nagar</option>
+      <option value="madhapur">Madhapur</option>
+      <option value="mehdipatnam">Mehdipatnam</option>
+    </select>
+
+    <div id="catererSection" style="display:none;">
+      <label for="caterers">🍴 Select Caterer:</label>
+      <select id="caterers" onchange="showMenu()">
+        <option value="">-- Select Caterer --</option>
+      </select>
+    </div>
+
+    <div id="menuSection"></div>
+
+    <div class="cart">
+      <h2>🛒 Your Cart</h2>
+      <ul id="cartItems"></ul>
+      <p><strong>Total:</strong> ₹<span id="total">0.00</span></p>
+      <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      kukatpally: {
+        "Sri Sai Catering": [
+          { name: "Veg Biryani", price: 120 },
+          { name: "Paneer Butter Masala", price: 150 }
+        ],
+        "Spicy Kitchen": [
+          { name: "Chicken 65", price: 180 },
+          { name: "Fried Rice", price: 100 }
+        ]
+      },
+      kphb: {
+        "Delight Foods": [
+          { name: "Gulab Jamun", price: 50 },
+          { name: "Chole Bhature", price: 130 }
+        ]
+      },
+      miyapur: {
+        "Urban Tadka": [
+          { name: "Pav Bhaji", price: 110 },
+          { name: "Butter Naan", price: 40 }
+        ]
+      },
+      balanagar: {
+        "Ruchi Caterers": [
+          { name: "Mutton Biryani", price: 250 },
+          { name: "Veg Pulao", price: 100 }
+        ]
+      },
+      ameerpet: {
+        "Classic Caterers": [
+          { name: "Samosa", price: 20 },
+          { name: "Manchurian", price: 90 }
+        ]
+      },
+      srnagar: {
+        "City Spices": [
+          { name: "Tandoori Chicken", price: 200 },
+          { name: "Mixed Veg Curry", price: 120 }
+        ]
+      },
+      madhapur: {
+        "Flavors of India": [
+          { name: "Chicken Curry", price: 190 },
+          { name: "Jeera Rice", price: 80 }
+        ]
+      },
+      mehdipatnam: {
+        "Hyderabadi Delights": [
+          { name: "Double Ka Meetha", price: 70 },
+          { name: "Hyderabadi Biryani", price: 230 }
+        ]
+      }
+    };
+
+    // Retrieve cart from localStorage or initialize it
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    function loadCaterers() {
+      const location = document.getElementById("location").value;
+      const catererDropdown = document.getElementById("caterers");
+      const catererSection = document.getElementById("catererSection");
+      catererDropdown.innerHTML = '<option value="">-- Select Caterer --</option>';
+
+      if (location && data[location]) {
+        Object.keys(data[location]).forEach(caterer => {
+          const option = document.createElement("option");
+          option.value = caterer;
+          option.textContent = caterer;
+          catererDropdown.appendChild(option);
+        });
+        catererSection.style.display = "block";
+      } else {
+        catererSection.style.display = "none";
+        document.getElementById("menuSection").innerHTML = "";
+      }
+    }
+
+    function showMenu() {
+      const location = document.getElementById("location").value;
+      const caterer = document.getElementById("caterers").value;
+      const menuSection = document.getElementById("menuSection");
+
+      if (location && caterer && data[location][caterer]) {
+        let html = `<h3 style="color:#8e24aa;">${caterer}'s Menu:</h3>`;
+        data[location][caterer].forEach(item => {
+          html += 
+            `<div class="menu-item">
+              <span>${item.name} - ₹${item.price}</span>
+              <button onclick="addToCart('${item.name}', ${item.price})">Add to Cart</button>
+            </div>`;
+        });
+        menuSection.innerHTML = html;
+      } else {
+        menuSection.innerHTML = "";
+      }
+    }
+
+    function addToCart(name, price) {
+      cart.push({ name, price });
+      updateCart();
+    }
+
+    function updateCart() {
+      const cartItems = document.getElementById("cartItems");
+      const totalDisplay = document.getElementById("total");
+      cartItems.innerHTML = "";
+      let total = 0;
+
+      cart.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name} - ₹${item.price}`;
+        cartItems.appendChild(li);
+        total += item.price;
+      });
+
+      totalDisplay.textContent = total.toFixed(2);
+
+      // Save cart to localStorage
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function placeOrder() {
+      const location = document.getElementById("location").value;
+      const caterer = document.getElementById("caterers").value;
+
+      if (!location || !caterer || cart.length === 0) {
+        alert("Please select a location, caterer, and add items to your cart before placing an order.");
+        return;
+      }
+
+      const orderData = {
+        location,
+        caterer,
+        items: cart,
+        totalAmount: cart.reduce((total, item) => total + item.price, 0),
+      };
+
+      // Send the order data to the backend
+      fetch('http://localhost:8080/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert("Order placed successfully!");
+        cart = [];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+      })
+      .catch(error => {
+        console.error('Error placing order:', error);
+        alert("There was an issue placing your order. Please try again.");
+      });
+    }
+
+    // Initialize the cart on page load
+    document.addEventListener("DOMContentLoaded", updateCart);
+  </script>
+</body>
+</html>

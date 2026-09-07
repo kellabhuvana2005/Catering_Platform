@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Cart - Our Catering Service</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #ffd89b, #19547b);
+    }
+
+    .navbar {
+      background-color: #000;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .nav-links a {
+      margin: 0 10px;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .contact-details {
+      font-size: 0.9rem;
+    }
+
+    .cart {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 20px;
+      background: #ffffffcc;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .cart h2 {
+      color: #000;
+      text-align: center;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    button.remove-btn {
+      background-color: #e53935;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button.remove-btn:hover {
+      background-color: #c62828;
+    }
+
+    #total {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #d32f2f;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="logo">🍽️ Our Catering Service</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="catering-events.html">Catering Events</a>
+      <a href="services.html">Services</a>
+      <a href="mycart.html">My Cart</a>
+    </div>
+    <div class="contact-details">
+      📞 Phone: 9876543210 | 📧 Email: contact@ourcatering.com
+    </div>
+  </div>
+
+  <div class="cart">
+    <h2>🛒 Your Cart</h2>
+    <ul id="cartItems"></ul>
+    <p id="total">Total: ₹0.00</p>
+  </div>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    function renderCart() {
+      const cartList = document.getElementById("cartItems");
+      const totalDisplay = document.getElementById("total");
+      cartList.innerHTML = "";
+      let total = 0;
+
+      cart.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+
+          ${item.name} - ₹${item.price}
+          <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+        `;
+        cartList.appendChild(li);
+        total += item.price;
+      });
+
+      totalDisplay.textContent = `Total: ₹${total.toFixed(2)}`;
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+    }
+
+    window.onload = renderCart;
+  </script>
+</body>
+</html>
