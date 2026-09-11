@@ -35,3 +35,4 @@ build/
 ### Backups ###
 project_backup_v1/
 
+cateringdb_backup.sql
