@@ -44,7 +44,7 @@
     }
 
     .cart {
-      max-width: 600px;
+      max-width: 650px;
       margin: 60px auto;
       padding: 20px;
       background: #ffffffcc;
@@ -57,6 +57,13 @@
       text-align: center;
     }
 
+    .empty-msg {
+      text-align: center;
+      color: #888;
+      font-size: 1rem;
+      margin: 20px 0;
+    }
+
     ul {
       list-style-type: none;
       padding: 0;
@@ -64,12 +71,70 @@
 
     li {
       margin: 10px 0;
-      padding: 10px;
+      padding: 10px 14px;
       background-color: #fff;
       border-radius: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .item-name {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .item-meta {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .item-price {
+      font-weight: bold;
+      color: #4a148c;
+      white-space: nowrap;
+      margin-left: 10px;
+    }
+
+    .item-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .qty-controls button {
+      background-color: #8e24aa;
+      color: white;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .qty-controls button:hover {
+      background-color: #6a1b9a;
+    }
+
+    .qty-num {
+      font-weight: bold;
+      min-width: 20px;
+      text-align: center;
     }
 
     button.remove-btn {
@@ -79,6 +144,7 @@
       padding: 6px 12px;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 0.85rem;
     }
 
     button.remove-btn:hover {
@@ -90,6 +156,25 @@
       font-weight: bold;
       color: #d32f2f;
       text-align: right;
+      margin-top: 15px;
+    }
+
+    .clear-btn {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f4511e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .clear-btn:hover {
+      background-color: #bf360c;
     }
   </style>
 </head>
@@ -112,9 +197,11 @@
     <h2>🛒 Your Cart</h2>
     <ul id="cartItems"></ul>
     <p id="total">Total: ₹0.00</p>
+    <button class="clear-btn" onclick="clearCart()">🗑️ Clear Cart</button>
   </div>
 
   <script>
+    // Read cart from localStorage — same key 'cart' used by services.html
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
     function renderCart() {
@@ -123,24 +210,60 @@
       cartList.innerHTML = "";
       let total = 0;
 
+      if (cart.length === 0) {
+        cartList.innerHTML = '<li class="empty-msg">Your cart is empty. <a href="services.html">Go add some items!</a></li>';
+        totalDisplay.textContent = "Total: ₹0.00";
+        return;
+      }
+
       cart.forEach((item, index) => {
+        const qty = item.quantity || 1;
+        const itemTotal = item.price * qty;
+        total += itemTotal;
+
         const li = document.createElement("li");
         li.innerHTML = `
-
-          ${item.name} - ₹${item.price}
-          <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+          <div class="item-info">
+            <span class="item-name">${item.name}</span>
+            ${item.caterer ? `<span class="item-meta">📍 ${item.location || ''} &nbsp;|&nbsp; 🍴 ${item.caterer}</span>` : ''}
+          </div>
+          <div class="item-right">
+            <div class="qty-controls">
+              <button onclick="changeQty(${index}, -1)">−</button>
+              <span class="qty-num">${qty}</span>
+              <button onclick="changeQty(${index}, 1)">+</button>
+            </div>
+            <span class="item-price">₹${itemTotal.toFixed(2)}</span>
+            <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+          </div>
         `;
         cartList.appendChild(li);
-        total += item.price;
       });
 
       totalDisplay.textContent = `Total: ₹${total.toFixed(2)}`;
+    }
+
+    function changeQty(index, delta) {
+      cart[index].quantity = (cart[index].quantity || 1) + delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
     }
 
     function removeItem(index) {
       cart.splice(index, 1);
       localStorage.setItem("cart", JSON.stringify(cart));
       renderCart();
+    }
+
+    function clearCart() {
+      if (confirm("Are you sure you want to clear your entire cart?")) {
+        cart = [];
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }
     }
 
     window.onload = renderCart;
